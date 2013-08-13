@@ -10,5 +10,19 @@
 "endif
 "let g:ultifind_loaded=1
 
+let old_efm=&efm
+let old_verbose=&verbose
+set verbose&vim
+set efm=%f
+let result=system('mlocate -i -b ' . 'teststring')
+let tmpfile=tempname()
+let ra=split(result,'\n')
+call writefile(ra,tmpfile)
+execute "silent! cgetfile " .tmpfile
+botright copen
+call delete(tmpfile)
+let &verbose=old_verbose
+let &efm=old_efm
+
 
 " vim: filetype=vim nowrap
