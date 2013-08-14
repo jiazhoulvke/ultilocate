@@ -86,8 +86,10 @@ function! <SID>Key_Map()
 endfunction
 
 function! <SID>Open_File(mode)
-    let fname = getline('.')
-    if !filereadable(fname)
+    let orig_fname = getline('.')
+    let s:esc_fname_chars = ' *?[{`$%#"|!<>();&'
+    let fname=escape(orig_fname,s:esc_fname_chars)
+    if fname == ''
         return
     endif
     if a:mode == 'curwindow'
