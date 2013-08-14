@@ -29,6 +29,18 @@ function! <SID>UltiLocate(ss)
     let &efm=old_efm
 endfunction
 
+" 如果安装了fuzzyfinder，则可以通过调用fuzzyfinder的api来显示搜索结果
+function! <SID>FufUltiLocate(ss)
+    if has('win32') || has('win64')
+        call fuf#givenfile#launch('',0,'>',split(system(g:ultilocate_everything_path." ".a:ss),"\n"))
+    else
+        call fuf#givenfile#launch('',0,'>',split(system(g:ultilocate_locate_path." -i -b ".a:ss),"\n"))
+    endif
+endfunction
+
 command! -nargs=1 UltiLocate call <SID>UltiLocate(<q-args>)
+if exists('g:ultilocate_has_fuzzyfinder')
+    command! -nargs=1 FufUltiLocate call <SID>FufUltiLocate(<q-args>)
+endif
 
 " vim: filetype=vim nowrap
