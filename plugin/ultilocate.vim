@@ -133,7 +133,6 @@ function! <SID>Toggle_Result_Window()
             return
         endif
     endif
-
     let bufnum=bufnr(s:bname)
     if bufnum == -1
         let wcmd = s:bname
