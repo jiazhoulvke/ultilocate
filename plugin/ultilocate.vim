@@ -11,7 +11,7 @@ endif
 let g:ultilocate_loaded=1
 
 if !exists('g:ultilocate_locate_path')
-    let g:ultilocate_locate_path='mlocate'
+    let g:ultilocate_locate_path='locate'
 endif
 if !exists('g:ultilocate_everything_path')
     let g:ultilocate_everything_path='es.exe'
@@ -39,13 +39,18 @@ else
     endif
 endif
 
-function! <SID>UltiLocate(ss)
+function! <SID>UltiLocate(...)
     if has('win32') || has('win64')
-        let cmd = g:ultilocate_everything_path . ' ' . a:ss
+        let cmd = g:ultilocate_everything_path . ' ' . a:1
     else
-        let cmd = g:ultilocate_locate_path . ' -i -b ' . a:ss
+        let cmd = g:ultilocate_locate_path . ' -i -b ' . a:1
     endif
     let result = system(cmd)
+    if a:0 == 2
+        let templist = split(result, "\n")
+        call filter(templist, 'v:val =~ "^'.a:2.'"')
+        let result = join(templist, "\n")
+    endif
     let winnum = bufwinnr(s:bname)
     if winnum != -1
         if winnr() != winnum
@@ -142,19 +147,7 @@ function! <SID>Toggle_Result_Window()
     endif
 endfunction
 
-" 如果安装了fuzzyfinder，则可以通过调用fuzzyfinder的api来显示搜索结果
-function! <SID>FufUltiLocate(ss)
-    if has('win32') || has('win64')
-        call fuf#givenfile#launch('',0,'>',split(system(g:ultilocate_everything_path." ".a:ss),"\n"))
-    else
-        call fuf#givenfile#launch('',0,'>',split(system(g:ultilocate_locate_path." -i -b ".a:ss),"\n"))
-    endif
-endfunction
-
-command! -nargs=1 UltiLocate call <SID>UltiLocate(<q-args>)
+command! -nargs=+ UltiLocate call <SID>UltiLocate(<f-args>)
 command! UltiLocateToggle call <SID>Toggle_Result_Window()
-if exists('g:ultilocate_has_fuzzyfinder')
-    command! -nargs=1 FufUltiLocate call <SID>FufUltiLocate(<q-args>)
-endif
 
 " vim: filetype=vim nowrap
